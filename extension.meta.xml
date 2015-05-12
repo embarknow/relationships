@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="relationships" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+	<name>Relationships</name>
+	<description>Relate sections to one another.</description>
+	<repo type="github">https://github.com/embarknow/relationships</repo>
+	<url type="issues">https://github.com/embarknow/relationships/issues</url>
+	<types>
+		<type>Relationship</type>
+		<type>Workflow</type>
+		<type>Association</type>
+	</types>
+	<authors>
+		<author>
+			<name github="DeuxHuitHuit" symphony="nitriques" twitter="DeuxHuitHuit">Deux Huit Huit</name>
+			<website>https://deuxhuithuit.com/</website>
+		</author>
+		<author>
+			<name github="psychoticmeow" symphony="buzzomatic" twitter="psychoticmeow">Rowan Lewis</name>
+			<website>http://nbsp.io/</website>
+		</author>
+		<author>
+			<name github="designermonkey" symphony="designermonkey">John Porter</name>
+			<website>http://designermonkey.co.uk</website>
+		</author>
+	</authors>
+	<dependencies>
+	</dependencies>
+	<releases>
+	</releases>
+</extension>
