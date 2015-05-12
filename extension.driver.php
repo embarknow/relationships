@@ -18,6 +18,16 @@ class Extension_Relationships extends Extension
         $context['autoloader']->setPsr4('SymphonyCMS\\Extensions\\Relationships\\', __DIR__ . '/libs');
     }
 
+    public function fetchNavigation() {
+        return array(
+            array(
+                'location'  => __('Blueprints'),
+                'name'      => __('Relationships'),
+                'link'      => '/relationships/'
+            )
+        );
+    }
+
     public function install()
     {
         /*

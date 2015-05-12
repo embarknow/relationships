@@ -26,5 +26,8 @@
 	<dependencies>
 	</dependencies>
 	<releases>
+		<release version="0.1" date="2015-05-12" min="3.0" max="3.x">
+			- Initial alpha
+		</release>
 	</releases>
 </extension>
