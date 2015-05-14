@@ -7,11 +7,66 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
 {
     public $_errors = array();
 
+    public function getUrl($path = null)
+    {
+        $url = SYMPHONY_URL . '/extension/relationships/relationships/';
+
+        if ($path && trim($path, '/')) {
+            $url .= trim($path, '/') . '/';
+        }
+
+        return $url;
+    }
+
     public function __viewIndex()
     {
         $this->setPageType('table');
         $this->setTitle(__('%1$s &ndash; %2$s', array(__('Relationships'), __('Symphony'))));
         $this->appendSubheading(__('Relationships'), Widget::Anchor(__('Create New'), Administration::instance()->getCurrentPageURL().'new/', __('Create a section'), 'create button', null, array('accesskey' => 'c')));
+
+
+
+
+
+
+
+
+
+
+        // $relationship = RelationshipManager::fetchById();
+        // var_dump($relationship);
+
+        // $relationship = new Relationship;
+        // $relationship['name'] = 'Something Awful';
+        // var_dump($relationship);
+
+        // $relationship = [
+        //     'name' =>       'Foobar',
+        //     'handle' =>     'foobar',
+        //     'sections' =>   [1, 2, 3]
+        // ];
+        // var_dump($relationship);
+        // var_dump(RelationshipManager::add($relationship));
+
+        // $relationship = RelationshipManager::fetch(5);
+        // $relationship['sections'] = [1, 2, 3];
+        // var_dump(RelationshipManager::edit($relationship));
+
+        // $relationship = RelationshipManager::fetch(5);
+        // var_dump(RelationshipManager::add($relationship));
+
+        // $relationship = RelationshipManager::fetch(5);
+        // var_dump(RelationshipManager::add($relationship));
+        // var_dump(RelationshipManager::delete($relationship));
+        // exit;
+
+
+
+
+
+
+
+
 
         $sections = RelationshipManager::fetch();
 
@@ -304,7 +359,7 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
 
         $div = new XMLElement('div');
         $div->setAttribute('class', 'actions');
-        $div->appendChild(Widget::Input('action[save]', __('Create Section'), 'submit', array('accesskey' => 's')));
+        $div->appendChild(Widget::Input('action[save]', __('Create Relationship'), 'submit', array('accesskey' => 's')));
 
         $this->Form->appendChild($div);
 
@@ -316,8 +371,8 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
 
         if (!$section = SectionManager::fetch($section_id)) {
             Administration::instance()->throwCustomError(
-                __('The Section, %s, could not be found.', array($section_id)),
-                __('Unknown Section'),
+                __('The Relationship, %s, could not be found.', array($section_id)),
+                __('Unknown Relationship'),
                 Page::HTTP_STATUS_NOT_FOUND
             );
         }
@@ -340,18 +395,18 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
 
             switch ($this->_context[2]) {
                 case 'saved':
-                    $message = __('Section updated at %s.', array($time->generate()));
+                    $message = __('Relationship updated at %s.', array($time->generate()));
                     break;
                 case 'created':
-                    $message = __('Section created at %s.', array($time->generate()));
+                    $message = __('Relationship created at %s.', array($time->generate()));
             }
 
             $this->pageAlert(
                 $message
-                . ' <a href="' . SYMPHONY_URL . '/blueprints/sections/new/" accesskey="c">'
+                . ' <a href="' . $this->getUrl('/new') . '" accesskey="c">'
                 . __('Create another?')
-                . '</a> <a href="' . SYMPHONY_URL . '/blueprints/sections/" accesskey="a">'
-                . __('View all Sections')
+                . '</a> <a href="' . $this->getUrl() . '" accesskey="a">'
+                . __('View all Relationships')
                 . '</a>',
                 Alert::SUCCESS
             );
@@ -381,12 +436,10 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
         }
 
         $this->setPageType('form');
-        $this->setTitle(__('%1$s &ndash; %2$s &ndash; %3$s', array($meta['name'], __('Sections'), __('Symphony'))));
-        $this->appendSubheading($meta['name'],
-            Widget::Anchor(__('View Entries'), SYMPHONY_URL . '/publish/' . $section->get('handle'), __('View Section Entries'), 'button')
-        );
+        $this->setTitle(__('%1$s &ndash; %2$s &ndash; %3$s', array($meta['name'], __('Relationships'), __('Symphony'))));
+        $this->appendSubheading($meta['name']);
         $this->insertBreadcrumbs(array(
-            Widget::Anchor(__('Sections'), SYMPHONY_URL . '/blueprints/sections/'),
+            Widget::Anchor(__('Relationships'), $this->getUrl()),
         ));
 
         $fieldset = new XMLElement('fieldset');
