@@ -215,7 +215,7 @@ class RelationshipManager
         );
 
         if (empty($relationshipIds)) {
-            $statement = Symphony::Database()->prepare("
+            $find = Symphony::Database()->prepare("
                 select
                     rel.*
                 from
@@ -223,12 +223,12 @@ class RelationshipManager
                 order by
                     rel.`{$sortcolumn}` {$sortorder}
             ");
-            $statement->execute();
+            $find->execute();
         }
 
         else {
             $inQuery = implode(',', array_fill(0, count($relationshipIds), '?'));
-            $statement = Symphony::Database()->prepare("
+            $find = Symphony::Database()->prepare("
                 select
                     rel.*
                 from
@@ -240,13 +240,13 @@ class RelationshipManager
             ");
 
             foreach ($relationshipIds as $index => $relationshipId) {
-                $statement->bindValue(1 + $index, $relationshipId);
+                $find->bindValue(1 + $index, $relationshipId);
             }
 
-            $statement->execute();
+            $find->execute();
         }
 
-        $statement->fetchAll(PDO::FETCH_FUNC, function(...$row) use (&$results) {
+        $find->fetchAll(PDO::FETCH_FUNC, function(...$row) use (&$results) {
             $results[] = self::createFromTableRow(...$row);
         });
 
