@@ -30,28 +30,54 @@ class Extension_Relationships extends Extension
 
     public function install()
     {
-        /*
-        create table `sym_relationships` (
-            `id` int(11) unsigned not null auto_increment,
-            `name` varchar(255) default null,
-            `handle` varchar(255) default null,
-            `min` tinyint(4) not null default '0',
-            `max` tinyint(4) not null default '0',
-            primary key (`id`)
-        );
+        $relations = Symphony::Database()->prepare("
+            create table if not exists `sym_relationships` (
+                `id` int(11) unsigned not null auto_increment,
+                `name` varchar(255) default null,
+                `handle` varchar(255) default null,
+                `min` tinyint(4) not null default '0',
+                `max` tinyint(4) not null default '0',
+                primary key (`id`)
+            )
+        ");
+        $sections = Symphony::Database()->prepare("
+            create table if not exists `sym_relationships_sections` (
+                `id` int(11) unsigned not null auto_increment,
+                `relationship_id` int(11) default null,
+                `section_id` int(11) default null,
+                primary key (`id`),
+                unique key `section_to_relationship` (`relationship_id`, `section_id`)
+            )
+        ");
 
-        create table `sym_relationships_sections` (
-            `id` int(11) unsigned not null auto_increment,
-            `relationship_id` int(11) default null,
-            `section_id` int(11) default null,
-            primary key (`id`),
-            unique key `section_to_relationship` (`relationship_id`, `section_id`)
-        );
-        */
+        try {
+            return $relations->execute() && $sections->execute();
+        }
+
+        catch (DatabaseException $error) {
+            Symphony::Log()->pushExceptionToLog($error, true);
+
+            return false;
+        }
     }
 
     public function uninstall()
     {
-        // Remove the tables...
+        $relations = Symphony::Database()->prepare("
+            drop table `sym_relationships`
+        ");
+        $sections = Symphony::Database()->prepare("
+            drop table `sym_relationships_sections`
+        ");
+
+        try {
+            return $relations->execute() && $sections->execute();
+        }
+
+        catch (DatabaseException $error) {
+            Symphony::Log()->pushExceptionToLog($error, true);
+
+            return false;
+        }
     }
 }
