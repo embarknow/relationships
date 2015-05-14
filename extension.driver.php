@@ -34,6 +34,7 @@ class Extension_Relationships extends Extension
         create table `sym_relationships` (
             `id` int(11) unsigned not null auto_increment,
             `name` varchar(255) default null,
+            `handle` varchar(255) default null,
             `min` tinyint(4) not null default '0',
             `max` tinyint(4) not null default '0',
             primary key (`id`)
