@@ -38,9 +38,13 @@ class RelationshipManager
      *
      * @return Relationship
      */
-    public static function create()
+    public static function create(array $data = [])
     {
         $obj = new Relationship;
+
+        foreach ($data as $field => $value) {
+            $obj[$field] = $value;
+        }
 
         return $obj;
     }
