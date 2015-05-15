@@ -3,13 +3,15 @@
 namespace SymphonyCMS\Extensions\Relationships;
 
 use ArrayAccess;
+use ArrayIterator;
+use IteratorAggregate;
 use Lang;
 use PDO;
 use SectionManager;
 use StdClass;
 use Symphony;
 
-class Relationship implements ArrayAccess
+class Relationship implements ArrayAccess, IteratorAggregate
 {
     /**
      * An array of the Relationship's settings
@@ -137,5 +139,57 @@ class Relationship implements ArrayAccess
         }
 
         return SectionManager::fetch($this['sections']);
+    }
+
+    /**
+     * Validate the current value of a given field name
+     *
+     * @param  string $field
+     * @return boolean
+     */
+    public function validate($field)
+    {
+        $value = $this->data[$field];
+
+        switch ($field) {
+                case 'id':
+                case 'min':
+                case 'max':
+                    return !is_null($value) && is_numeric($value);
+
+                case 'name':
+                    return !is_null($value) && is_string($value) && strlen(trim($value)) > 0;
+
+                case 'handle':
+                    if (!is_null($value) && is_string($value) && strlen(trim($value)) > 0) {
+                        $existing = RelationshipManager::fetchByHandle($value);
+
+                        if (!$existing) {
+                            return true;
+                        }
+
+                        if (isset($this['id']) && $this['id'] === $existing['id']) {
+                            return true;
+                        } elseif (!isset($this['id']) && $value !== $existing['handle']) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+
+                case 'sections':
+                    return is_array($value) && !empty($value) && count($value) >= 2;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get an iterator for the values in this Relationship
+     * @return ArrayIterator
+     */
+    public function getIterator()
+    {
+        return new ArrayIterator($this->data);
     }
 }
