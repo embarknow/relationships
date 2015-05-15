@@ -316,4 +316,35 @@ class RelationshipManager
 
         return self::fetch($relationshipIds);
     }
+
+    /**
+     * Returns a Relationship by its handle.
+     *
+     * @param array $relationshipHandle
+     * @throws DatabaseException
+     * @return boolean
+     */
+    public static function fetchByHandle($relationshipHandle)
+    {
+        $find = Symphony::Database()->prepare("
+            select
+                rel.*
+            from
+                `tbl_relationships` as `rel`
+            where
+                rel.handle = :handle
+            limit
+                1
+        ");
+        $find->bindValue(':handle', $relationshipHandle);
+        $find->execute();
+
+        $row = $find->fetch(PDO::FETCH_ASSOC);
+
+        if (false === $row) {
+            return false;
+        }
+
+        return self::createFromTableRow(...array_values($row));
+    }
 }
