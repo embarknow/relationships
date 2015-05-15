@@ -136,4 +136,185 @@ class Relationship implements ArrayAccess
 
         return SectionManager::fetch($this['sections']);
     }
+
+    /**
+     * Does this relationship have an interface field in the given section?
+     *
+     * @param   integer  $sectionId
+     * @return  boolean
+     */
+    public function hasField($sectionId)
+    {
+        $hasField = Symphony::Database()->prepare("
+            select
+                field_id
+            from
+                tbl_relationships_fields
+            where
+                relationship_id = :relationship_id
+                and section_id = :section_id
+            limit 1
+        ");
+        $hasField->bindValue('relationship_id', $this['id']);
+        $hasField->bindValue('section_id', $sectionId);
+        $hasField->execute();
+
+        return false !== $hasField->fetch();
+    }
+
+    /**
+     * Get the field ID linked to the given section.
+     *
+     * @param   integer  $sectionId
+     * @return  integer|boolean
+     */
+    public function getField($sectionId)
+    {
+        $getField = Symphony::Database()->prepare("
+            select
+                field_id
+            from
+                tbl_relationships_fields
+            where
+                relationship_id = :relationship_id
+                and section_id = :section_id
+            limit 1
+        ");
+        $getField->bindColumn('field_id', $fieldId);
+        $getField->bindValue('relationship_id', $this['id']);
+        $getField->bindValue('section_id', $sectionId);
+        $getField->execute();
+
+        if ($getField->fetch()) {
+            return $fieldId;
+        }
+
+        return false;
+    }
+
+    public function addLink($fromEntryId, $toEntryId)
+    {
+        // We always insert links with the lowest entry ID
+        // on the left for consistency:
+        $entries = [$fromEntryId, $toEntryId];
+        sort($entries, SORT_NUMERIC);
+        list($fromEntryId, $toEntryId) = $entries;
+
+        $linked = Symphony::Database()->prepare("
+            select
+                relationship_id
+            from
+                tbl_relationships_entries
+            where
+                relationship_id = :relationship_id
+                and left_entry_id = :left_entry_id
+                and right_entry_id = :right_entry_id
+            limit 1
+        ");
+        $linked->bindValue('relationship_id', $this['id']);
+        $linked->bindValue('left_entry_id', $fromEntryId);
+        $linked->bindValue('right_entry_id', $toEntryId);
+        $linked->execute();
+
+        // Link already exists:
+        if ($linked->fetch()) {
+            return true;
+        }
+
+        // Create the link:
+        $link = Symphony::Database()->prepare("
+            insert into
+                tbl_relationships_entries
+            set
+                relationship_id = :relationship_id,
+                left_entry_id = :left_entry_id,
+                right_entry_id = :right_entry_id
+        ");
+        $link->bindValue('relationship_id', $this['id']);
+        $link->bindValue('left_entry_id', $fromEntryId);
+        $link->bindValue('right_entry_id', $toEntryId);
+
+        return $link->execute();
+    }
+
+    public function removeAllLinks($entryId)
+    {
+        $unlink = Symphony::Database()->prepare("
+            delete from
+                tbl_relationships_entries
+            where
+                relationship_id = :relationship_id
+                and (
+                    left_entry_id = :left_entry_id
+                    or right_entry_id = :right_entry_id
+                )
+        ");
+        $unlink->bindValue('relationship_id', $this['id']);
+        $unlink->bindValue('left_entry_id', $entryId);
+        $unlink->bindValue('right_entry_id', $entryId);
+
+        return $unlink->execute();
+    }
+
+    public function getEntries()
+    {
+        $find = Symphony::Database()->prepare("
+            select distinct
+                entries.id
+            from
+                sym_entries as entries,
+                sym_relationships_entries as links
+            where
+                links.relationship_id = :relationship_id
+                and (
+                    links.left_entry_id = entries.id
+                    or links.right_entry_id = entries.id
+                )
+        ");
+        $find->bindValue('relationship_id', $this['id']);
+        $find->execute();
+
+        $entries = $find->fetchAll(PDO::FETCH_COLUMN, 0);
+
+        $entries = array_map(function($id) {
+            return (integer)$id;
+        }, $entries);
+
+        return $entries;
+    }
+
+    public function getEntriesByEntryId($entryId)
+    {
+        $find = Symphony::Database()->prepare("
+            select
+                case when
+                    left_entry_id = :entry_id
+                then
+                    right_entry_id
+                else
+                    left_entry_id
+                end as id
+            from
+                sym_relationships_entries
+            where
+                relationship_id = :relationship_id
+                and (
+                    left_entry_id = :left_entry_id
+                    or right_entry_id = :right_entry_id
+                )
+        ");
+        $find->bindValue('relationship_id', $this['id']);
+        $find->bindValue('entry_id', $entryId);
+        $find->bindValue('left_entry_id', $entryId);
+        $find->bindValue('right_entry_id', $entryId);
+        $find->execute();
+
+        $entries = $find->fetchAll(PDO::FETCH_COLUMN, 0);
+
+        $entries = array_map(function($id) {
+            return (integer)$id;
+        }, $entries);
+
+        return $entries;
+    }
 }

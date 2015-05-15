@@ -31,7 +31,7 @@ class Extension_Relationships extends Extension
     public function install()
     {
         $relations = Symphony::Database()->prepare("
-            create table if not exists `sym_relationships` (
+            create table if not exists `tbl_relationships` (
                 `id` int(11) unsigned not null auto_increment,
                 `name` varchar(255) default null,
                 `handle` varchar(255) default null,
@@ -40,8 +40,29 @@ class Extension_Relationships extends Extension
                 primary key (`id`)
             )
         ");
+        $entries = Symphony::Database()->prepare("
+            create table if not exists `tbl_relationships_entries` (
+                `id` int(11) unsigned not null auto_increment,
+                `relationship_id` int(11) default null,
+                `left_entry_id` int(11) default null,
+                `right_entry_id` int(11) default null,
+                primary key (`id`),
+                unique key `entry_to_entry_to_relationship` (`relationship_id`, `left_entry_id`, `right_entry_id`)
+            )
+        ");
+        $fields = Symphony::Database()->prepare("
+            create table if not exists `tbl_relationships_fields` (
+                `id` int(11) unsigned not null auto_increment,
+                `relationship_id` int(11) default null,
+                `section_id` int(11) default null,
+                `field_id` int(11) default null,
+                primary key (`id`),
+                unique key `field_to_section_to_relationship` (`relationship_id`, `section_id`, `field_id`),
+                key `section_to_relationship` (`relationship_id`, `section_id`)
+            )
+        ");
         $sections = Symphony::Database()->prepare("
-            create table if not exists `sym_relationships_sections` (
+            create table if not exists `tbl_relationships_sections` (
                 `id` int(11) unsigned not null auto_increment,
                 `relationship_id` int(11) default null,
                 `section_id` int(11) default null,
@@ -51,7 +72,12 @@ class Extension_Relationships extends Extension
         ");
 
         try {
-            return $relations->execute() && $sections->execute();
+            return (
+                $relations->execute()
+                && $entries->execute()
+                && $fields->execute()
+                && $sections->execute()
+            );
         }
 
         catch (DatabaseException $error) {

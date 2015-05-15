@@ -48,16 +48,17 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
         // var_dump($relationship);
         // var_dump(RelationshipManager::add($relationship));
 
-        // $relationship = RelationshipManager::fetch(5);
+        // $relationship = RelationshipManager::fetchById(5);
         // $relationship['sections'] = [1, 2, 3];
         // var_dump(RelationshipManager::edit($relationship));
 
-        // $relationship = RelationshipManager::fetch(5);
+        // $relationship = RelationshipManager::fetchById(5);
         // var_dump(RelationshipManager::add($relationship));
 
-        // $relationship = RelationshipManager::fetch(5);
+        // $relationship = RelationshipManager::fetchById(1);
         // var_dump(RelationshipManager::add($relationship));
         // var_dump(RelationshipManager::delete($relationship));
+
         // exit;
 
 
@@ -334,7 +335,9 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
             }
         }
 
-        uasort($types, create_function('$a, $b', 'return strnatcasecmp($a->_name, $b->_name);'));
+        uasort($types, function($a, $b) {
+            return strnatcasecmp($a->_name, $b->_name);
+        });
 
         foreach ($types as $type) {
             $defaults = array();
@@ -539,7 +542,9 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
             }
         }
 
-        uasort($types, create_function('$a, $b', 'return strnatcasecmp($a->_name, $b->_name);'));
+        uasort($types, function($a, $b) {
+            return strnatcasecmp($a->_name, $b->_name);
+        });
 
         foreach ($types as $type) {
             $defaults = array();
