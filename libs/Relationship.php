@@ -35,44 +35,46 @@ class Relationship implements ArrayAccess
 
     public function offsetSet($name, $value)
     {
-        switch ($name) {
-            case 'id':
-            case 'min':
-            case 'max':
-                $value = (integer)$value;
-                break;
+        if (array_key_exists($name, $this->data)) {
+            switch ($name) {
+                case 'id':
+                case 'min':
+                case 'max':
+                    $value = (integer)$value;
+                    break;
 
-            case 'name':
-                if (false === isset($this['handle']) || '' === trim($this['handle'])) {
-                    $this['handle'] = $value;
-                }
-                break;
+                case 'name':
+                    if (false === isset($this['handle']) || '' === trim($this['handle'])) {
+                        $this['handle'] = $value;
+                    }
+                    break;
 
-            case 'handle':
-                $value = Lang::createHandle($value);
-                break;
+                case 'handle':
+                    $value = Lang::createHandle($value);
+                    break;
 
-            case 'sections':
-                if (is_array($value)) {
-                    $value = array_map(function($value) {
-                        return (integer)$value;
-                    }, $value);
-                    $value = array_filter($value, function($value) {
-                        return $value > 0;
-                    });
-                }
+                case 'sections':
+                    if (is_array($value)) {
+                        $value = array_map(function($value) {
+                            return (integer)$value;
+                        }, $value);
+                        $value = array_filter($value, function($value) {
+                            return $value > 0;
+                        });
+                    }
 
-                else if ((integer)$value > 0) {
-                    $value = [(integer)$value];
-                }
+                    else if ((integer)$value > 0) {
+                        $value = [(integer)$value];
+                    }
 
-                else {
-                    $value = [];
-                }
-                break;
+                    else {
+                        $value = [];
+                    }
+                    break;
+            }
+
+            $this->data[$name] = $value;
         }
-
-        $this->data[$name] = $value;
     }
 
     public function offsetExists($name)
