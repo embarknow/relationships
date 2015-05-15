@@ -119,7 +119,7 @@ class Relationship implements ArrayAccess
     public function get($setting = null)
     {
         if (is_null($setting)) {
-            return (array)$this;
+            return $this->data;
         }
 
         return $this[$setting];
