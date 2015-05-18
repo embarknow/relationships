@@ -565,7 +565,10 @@ class contentExtensionRelationshipsRelationships extends AdministrationPage
         );
 
         foreach ($items as $relationship_id) {
-            RelationshipManager::delete($relationship_id);
+            $relationship = RelationshipManager::create([
+                'id' => $relationship_id
+            ]);
+            RelationshipManager::delete($relationship);
         }
 
         /**
