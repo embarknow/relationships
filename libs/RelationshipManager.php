@@ -2,6 +2,7 @@
 
 namespace SymphonyCMS\Extensions\Relationships;
 
+use Exception;
 use PDO;
 use Symphony;
 
@@ -26,11 +27,26 @@ class RelationshipManager
             set
                 name = null
         ");
-        $reserve->execute();
 
-        $relationship['id'] = Symphony::Database()->getInsertID();
+        // $transaction = Symphony::Database()->transaction();
 
-        return self::edit($relationship);
+        // try {
+            $reserve->execute();
+
+            $relationship['id'] = Symphony::Database()->getInsertID();
+
+            self::edit($relationship);
+
+        //     $transaction->commit();
+        // }
+
+        // catch (Exception $error) {
+        //     $transaction->rollBack();
+
+        //     throw $error;
+        // }
+
+        return true;
     }
 
     /**
@@ -111,9 +127,21 @@ class RelationshipManager
         ");
         $sections->bindValue(':relationship_id', $relationship['id']);
 
-        // TODO: Do a transaction around this:
-        $relations->execute();
-        $sections->execute();
+        // $transaction = Symphony::Database()->transaction();
+
+        // try {
+            $relations->execute();
+            $sections->execute();
+
+        //     $transaction->commit();
+        // }
+
+        // catch (Exception $error) {
+        //     $transaction->rollBack();
+
+        //     throw $error;
+
+        // }
 
         return true;
     }
@@ -179,10 +207,22 @@ class RelationshipManager
             $insert->bindValue(1 + $index, $value);
         }
 
-        // TODO: Do a transaction around this:
-        $edit->execute();
-        $clear->execute();
-        $insert->execute();
+        // $transaction = Symphony::Database()->transaction();
+
+        // try {
+            $edit->execute();
+            $clear->execute();
+            $insert->execute();
+
+        //     $transaction->commit();
+        // }
+
+        // catch (Exception $error) {
+        //     $transaction->rollBack();
+
+        //     throw $error;
+
+        // }
 
         return true;
     }
